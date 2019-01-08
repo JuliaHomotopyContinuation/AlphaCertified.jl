@@ -1,6 +1,8 @@
 using AlphaCertified
 using DynamicPolynomials
 using Test
+using HomotopyContinuation
+using PolynomialTestSystems
 
 
 @polyvar x y z
@@ -23,3 +25,15 @@ certify(g, points)
 AlphaCertified.matrix_form!(stdout, g)
 
 exponents(f)
+
+
+rationalize(2.3+5im)
+
+
+F = equations(katsura(5))
+r = solve(F)
+
+certify(F, solutions(r),
+    rationalize=false,
+    NEWTONONLY=1, ARITHMETICTYPE=1,
+    NUMITERATIONS=10)

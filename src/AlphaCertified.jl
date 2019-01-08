@@ -47,39 +47,60 @@ function matrix_form(io::IO, F::Vector{<:MP.AbstractPolynomialLike})
     nothing
 end
 
-function input_points(io::IO, points::Vector{<:Vector{<:Number}})
+function input_points(io::IO, points::Vector{<:Vector{<:Number}}, convert_to_rational=true)
     println(io, length(points))
     for p in points
         println(io, "\n")
         for xᵢ in p
-            re, im = rationalize.(reim(xᵢ))
-            print(io, numerator(re), "/", denominator(re))
-            print(io, " ")
-            print(io, numerator(im), "/", denominator(im))
-            print(io, "\n")
+            if convert_to_rational
+                re, im = rationalize.(reim(xᵢ))
+                print(io, numerator(re), "/", denominator(re))
+                print(io, " ")
+                print(io, numerator(im), "/", denominator(im))
+                print(io, "\n")
+            else
+                re, im = reim(xᵢ)
+                print(io, re)
+                print(io, " ")
+                print(io, im)
+                print(io, "\n")
+            end
         end
     end
     nothing
 end
 
+function write_settings(io::IO, settings)
+    for (k, v) in settings
+        println(io, k, ": ", v)
+    end
+end
 
 """
     certify(F, solutions; dir=mktempdir())
 
 """
 function certify(F::Vector{<:MP.AbstractPolynomialLike}, solutions;
-    dir = mktempdir())
+    rationalize=true,
+    dir = mktempdir(), kwargs...)
     polySys = sprint(matrix_form, F)
     println("File directory: ", dir)
     write(joinpath(dir, "polySys"), polySys)
 
-    points = sprint(input_points, solutions)
+    points = sprint(input_points, solutions, rationalize)
     write(joinpath(dir, "points"), points)
 
+    if !isempty(kwargs)
+        settings = sprint(write_settings, kwargs)
+        write(joinpath(dir, "settings"), settings)
+    end
     old_dir = pwd()
-    cd(dir)
-    run(`alphaCertified polySys points`)
-    cd(old_dir)
+    try
+        cd(dir)
+        run(`alphaCertified polySys points settings`)
+    finally
+        cd(old_dir)
+    end
 end
 
 end # module
