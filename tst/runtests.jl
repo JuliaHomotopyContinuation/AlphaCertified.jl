@@ -36,4 +36,9 @@ r = solve(F)
 certify(F, solutions(r),
     rationalize=false,
     NEWTONONLY=1, ARITHMETICTYPE=1,
-    NUMITERATIONS=10)
+    NUMITERATIONS=5)
+
+using DelimitedFiles
+
+
+entries = readdlm("/var/folders/d8/9j36bh6j5190wk69s6qwpf140000gp/T/tmpkMn1Cq/refinedPoints", ' ', String, skipstart=1, skipblanks=false)

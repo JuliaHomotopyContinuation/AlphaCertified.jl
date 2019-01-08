@@ -81,26 +81,42 @@ end
 
 """
 function certify(F::Vector{<:MP.AbstractPolynomialLike}, solutions;
+    system_file=nothing,
+    points_file=nothing,
+    settings_file=nothing,
     rationalize=true,
     dir = mktempdir(), kwargs...)
-    polySys = sprint(matrix_form, F)
-    println("File directory: ", dir)
-    write(joinpath(dir, "polySys"), polySys)
 
-    points = sprint(input_points, solutions, rationalize)
-    write(joinpath(dir, "points"), points)
+    if system_file === nothing
+        polySys = sprint(matrix_form, F)
+        println("File directory: ", dir)
+        write(joinpath(dir, "polySys"), polySys)
+        system_file = "polySys"
+    end
+
+    if points_file === nothing
+        points = sprint(input_points, solutions, rationalize)
+        write(joinpath(dir, "points"), points)
+        points_file = "points"
+    end
 
     if !isempty(kwargs)
         settings = sprint(write_settings, kwargs)
-        write(joinpath(dir, "settings"), settings)
+        write(joinpath(dir, "customSettings"), settings)
+        settings_file = "customSettings"
     end
     old_dir = pwd()
     try
         cd(dir)
-        run(`alphaCertified polySys points settings`)
+        if settings_file === nothing
+            run(`alphaCertified polySys $(points_file)`)
+        else
+            run(`alphaCertified polySys $(points_file) $(settings_file)`)
+        end
     finally
         cd(old_dir)
     end
+    nothing
 end
 
 end # module
