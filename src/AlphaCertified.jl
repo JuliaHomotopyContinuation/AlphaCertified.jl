@@ -1,8 +1,9 @@
 module AlphaCertified
 
-export certify
+export certify, refine_points
 
 import MultivariatePolynomials
+using DelimitedFiles
 const MP = MultivariatePolynomials
 
 Base.rationalize(i::Int64) = i // 1
@@ -53,7 +54,7 @@ function input_points(io::IO, points::Vector{<:Vector{<:Number}}, convert_to_rat
         println(io, "\n")
         for xᵢ in p
             if convert_to_rational
-                re, im = rationalize.(reim(xᵢ))
+                re, im = rationalize_re_im(xᵢ)
                 print(io, numerator(re), "/", denominator(re))
                 print(io, " ")
                 print(io, numerator(im), "/", denominator(im))
@@ -69,6 +70,10 @@ function input_points(io::IO, points::Vector{<:Vector{<:Number}}, convert_to_rat
     end
     nothing
 end
+
+rationalize_re_im(x::Complex{BigFloat}) = rationalize.(BigInt, reim(x))
+rationalize_re_im(x::BigFloat) = rationalize.(BigInt, reim(x))
+rationalize_re_im(x) = rationalize.(reim(x))
 
 function write_settings(io::IO, settings)
     for (k, v) in settings
@@ -116,7 +121,30 @@ function certify(F::Vector{<:MP.AbstractPolynomialLike}, solutions;
     finally
         cd(old_dir)
     end
-    nothing
+    dir
 end
+
+function refine_points(F::Vector{<:MP.AbstractPolynomialLike}, solutions; numiterations=3)
+    dir = certify(F, solutions,
+        rationalize = false,
+        NEWTONONLY = 1,
+        ARITHMETICTYPE = 1,
+        NUMITERATIONS = numiterations)
+    parse_refined_points(dir)
+end
+
+function parse_refined_points(dir)
+    R = readdlm(joinpath(dir, "refinedPoints"), ' ', String, skipstart = 0)
+    l = size(R,1) - 1
+    s = parse(Int, R[1,1])
+    r = Int(l/s)
+    map(1:s) do i
+        map((i-1)*r+2:i*r+1) do k
+            complex(parse(BigFloat, R[k,1]), parse(BigFloat, R[k,2]))
+         end
+    end
+end
+
+
 
 end # module
