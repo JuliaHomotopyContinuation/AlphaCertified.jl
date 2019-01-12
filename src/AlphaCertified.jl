@@ -89,7 +89,7 @@ function certify(F::AbstractVector{<:MP.AbstractPolynomialLike}, solutions;
     system_file=nothing,
     points_file=nothing,
     settings_file=nothing,
-    rationalize=true,
+    rationalize=false,
     dir = mktempdir(), kwargs...)
 
     if system_file === nothing
