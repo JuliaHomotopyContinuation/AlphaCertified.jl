@@ -24,7 +24,7 @@ function matrix_form(f::MP.AbstractPolynomialLike, variables=MP.variables(f))
     M
 end
 
-function matrix_form(io::IO, F::Vector{<:MP.AbstractPolynomialLike})
+function matrix_form(io::IO, F::AbstractVector{<:MP.AbstractPolynomialLike})
     vars = MP.variables(F)
     npolys = length(F)
     nvars = length(vars)
@@ -48,7 +48,7 @@ function matrix_form(io::IO, F::Vector{<:MP.AbstractPolynomialLike})
     nothing
 end
 
-function input_points(io::IO, points::Vector{<:Vector{<:Number}}, convert_to_rational=true)
+function input_points(io::IO, points::Vector{<:AbstractVector{<:Number}}, convert_to_rational=true)
     println(io, length(points))
     for p in points
         println(io, "\n")
@@ -85,7 +85,7 @@ end
     certify(F, solutions; dir=mktempdir())
 
 """
-function certify(F::Vector{<:MP.AbstractPolynomialLike}, solutions;
+function certify(F::AbstractVector{<:MP.AbstractPolynomialLike}, solutions;
     system_file=nothing,
     points_file=nothing,
     settings_file=nothing,
@@ -124,7 +124,7 @@ function certify(F::Vector{<:MP.AbstractPolynomialLike}, solutions;
     dir
 end
 
-function refine_points(F::Vector{<:MP.AbstractPolynomialLike}, solutions; numiterations=3)
+function refine_points(F::AbstractVector{<:MP.AbstractPolynomialLike}, solutions; numiterations=3)
     dir = certify(F, solutions,
         rationalize = false,
         NEWTONONLY = 1,
