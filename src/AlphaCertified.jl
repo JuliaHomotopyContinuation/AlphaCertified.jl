@@ -15,7 +15,7 @@ function matrix_form(f::MP.AbstractPolynomialLike, variables=MP.variables(f))
         for (j, v) in enumerate(variables)
             M[i, j] = MP.degree(term, v)
         end
-        re, im = rationalize.(reim(MP.coefficient(term)))
+        re, im = rationalize_re_im(MP.coefficient(term))
         M[i, nvars+1] = numerator(re)
         M[i, nvars+2] = denominator(re)
         M[i, nvars+3] = numerator(im)
@@ -73,7 +73,9 @@ end
 
 rationalize_re_im(x::Complex{BigFloat}) = rationalize.(BigInt, reim(x))
 rationalize_re_im(x::BigFloat) = rationalize.(BigInt, reim(x))
+rationalize_re_im(x::Rational) = convert.(Rational{BigInt}, reim(x))
 rationalize_re_im(x) = rationalize.(reim(x))
+rationalize_re_im(x::Complex{<:Rational}) = x
 
 function write_settings(io::IO, settings)
     for (k, v) in settings
@@ -92,6 +94,10 @@ function certify(F::AbstractVector{<:MP.AbstractPolynomialLike}, solutions;
     rationalize=false,
     dir = mktempdir(), kwargs...)
 
+    try
+        mkdir(dir)
+    catch _
+    end
     if system_file === nothing
         polySys = sprint(matrix_form, F)
         println("File directory: ", dir)
