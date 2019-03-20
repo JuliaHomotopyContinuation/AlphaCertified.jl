@@ -1,4 +1,4 @@
-#AlphaCertified
+# AlphaCertified
 
 This is a simple Julia wrapper for [alphaCertified](https://arxiv.org/abs/1011.1091). Loading the package provides two functions `certify` and `refine_points`. Both functions work with `BigFloat`. To set the precision, use `setprecision`. For instance, for working with 96 bits use `setprecision(96)`.
 
