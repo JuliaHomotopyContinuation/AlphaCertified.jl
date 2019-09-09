@@ -6,11 +6,11 @@ import MultivariatePolynomials
 using DelimitedFiles
 const MP = MultivariatePolynomials
 
-Base.rationalize(i::Int64) = i // 1
+Base.rationalize(i::Union{BigInt,Int64}) = i // 1
 function matrix_form(f::MP.AbstractPolynomialLike, variables=MP.variables(f))
     nvars = length(variables)
     nterms = MP.nterms(f)
-    M = zeros(Int, nterms, nvars + 4)
+    M = zeros(BigInt, nterms, nvars + 4)
     for (i, term) in enumerate(MP.terms(f))
         for (j, v) in enumerate(variables)
             M[i, j] = MP.degree(term, v)
@@ -75,7 +75,7 @@ rationalize_re_im(x::Complex{BigFloat}) = rationalize.(BigInt, reim(x))
 rationalize_re_im(x::BigFloat) = rationalize.(BigInt, reim(x))
 rationalize_re_im(x::Rational) = convert.(Rational{BigInt}, reim(x))
 rationalize_re_im(x) = rationalize.(reim(x))
-rationalize_re_im(x::Complex{<:Rational}) = x
+rationalize_re_im(x::Complex{<:Rational}) = reim(x)
 
 function write_settings(io::IO, settings)
     for (k, v) in settings
